@@ -16,5 +16,3 @@ jobs:
       - name: Smoke
         run: |
           echo "CI smoke test: repo checked out successfully."
-# trigger
-name: CI
