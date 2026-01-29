@@ -42,11 +42,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-                    cache: npm
-          cache-dependency-path: accounting/accounting-api/package-lock.json
 
       - name: Install
-        run: |
+        run: npm install --no-audit --no-fund
           if [ -f package-lock.json ]; then
             npm ci
           else
