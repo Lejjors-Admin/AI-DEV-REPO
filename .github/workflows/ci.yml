@@ -6,7 +6,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  smoke:
+    name: smoke
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
