@@ -6,13 +6,21 @@ on:
     branches: [ main ]
 
 jobs:
-  smoke:
-    name: smoke
+  test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Smoke
-        run: |
-          echo "CI smoke test: repo checked out successfully."
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
