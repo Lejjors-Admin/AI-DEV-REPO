@@ -61,7 +61,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "CI Build ${{ job.status }}"
+                    "text": "CI Build ${{ success() && 'Passed ✅' || 'Failed ❌' }}"
                   }
                 },
                 {
@@ -81,11 +81,11 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Status:*\n${{ job.status }}"
+                      "text": "*Status:*\n${{ success() && 'Success' || 'Failed' }}"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Commit:*\n<${{ github.event.head_commit.url }}|${{ github.sha }}>"
+                      "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
                     },
                     {
                       "type": "mrkdwn",
