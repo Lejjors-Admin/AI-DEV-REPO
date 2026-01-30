@@ -501,16 +501,19 @@ export default function Reports() {
                             <p>No data available for the selected report type and parameters.</p>
                           </div>
                         ) : (
-                          /* Render the actual financial reports */
-                          <div>
-                            {reportType === "trial-balance" && renderTrialBalance()}
-                            {reportType === "balance-sheet" && renderBalanceSheet()}
-                            {reportType === "profit-loss" && renderProfitLoss()}
-                            {reportType === "cash-flow" && (
-                              <div className="py-8 text-center">
-                                <p>Cash Flow Statement not yet implemented</p>
+                          /* Display raw report data */
+                          <div className="space-y-4">
+                            <div className="py-8 text-center">
+                              <p className="text-lg font-medium mb-2">Report Generated Successfully</p>
+                              <p className="text-sm text-muted-foreground">
+                                The report has been generated. For a detailed view, please visit the Books module Reports tab.
+                              </p>
+                              <div className="mt-4 p-4 bg-gray-50 rounded-md text-left">
+                                <pre className="text-xs overflow-auto max-h-96">
+                                  {JSON.stringify(reportData, null, 2)}
+                                </pre>
                               </div>
-                            )}
+                            </div>
                           </div>
                         )}
                       </div>
