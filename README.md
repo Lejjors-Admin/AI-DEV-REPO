@@ -5,6 +5,10 @@
 
 ### Install dependencies
 ```bash
+# For reproducible CI-like installs (recommended)
+npm ci
+
+# Or for development installs
 npm install
 ```
 
@@ -14,8 +18,8 @@ npm install
 npm test
 
 # Run accounting-api tests
-cd accounting/accounting-api && npm test
+(cd accounting/accounting-api && npm test)
 
 # Run accounting-app tests (if test script exists)
-cd accounting/accounting-app && npm run --if-present test
+(cd accounting/accounting-app && npm run --if-present test)
 ```

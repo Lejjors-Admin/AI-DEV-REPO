@@ -21,7 +21,7 @@ jobs:
 
       # ---- root ----
       - name: Install (root)
-        run: npm install --no-audit --no-fund
+        run: npm ci
 
       - name: Test (root)
         run: npm test
