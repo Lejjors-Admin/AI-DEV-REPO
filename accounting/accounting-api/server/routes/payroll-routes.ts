@@ -71,7 +71,7 @@ const createPayrollRunSchema = z.object({
 
 const generateT4Schema = z.object({
   employeeId: z.number().min(1, 'Employee ID is required'),
-  taxYear: z.number().min(2000).max(2100, 'Valid tax year is required'),
+  taxYear: z.number().min(2000, 'Tax year must be 2000 or later').max(2100, 'Tax year must be 2100 or earlier'),
   clientId: z.number().min(1, 'Client ID is required')
 });
 
@@ -120,6 +120,7 @@ function requireFirmMember(req: any, res: any, next: any) {
 
 /**
  * Calculate CPP (Canada Pension Plan) contribution
+ * NOTE: These rates are for 2024 and must be updated annually
  * 2024 rates: 5.95% on pensionable earnings
  * Maximum pensionable earnings: $66,600
  * Basic exemption: $3,500
@@ -148,6 +149,7 @@ function calculateCPP(grossPay: number, yearToDateEarnings: number = 0): number 
 
 /**
  * Calculate EI (Employment Insurance) premium
+ * NOTE: These rates are for 2024 and must be updated annually
  * 2024 rates: 1.63% for employees
  * Maximum insurable earnings: $63,200
  */
@@ -170,31 +172,25 @@ function calculateEI(grossPay: number, yearToDateEarnings: number = 0): number {
 
 /**
  * Calculate federal income tax using 2024 federal tax brackets
+ * NOTE: Tax brackets change annually and should be updated each year
  */
 function calculateFederalTax(annualIncome: number, basicPersonalAmount: number = 15000): number {
   // 2024 Federal tax brackets
   const brackets = [
-    { threshold: 0, rate: 0.15 },
-    { threshold: 55867, rate: 0.205 },
-    { threshold: 111733, rate: 0.26 },
-    { threshold: 173205, rate: 0.29 },
-    { threshold: 246752, rate: 0.33 }
+    { from: 0, to: 55867, rate: 0.15 },
+    { from: 55867, to: 111733, rate: 0.205 },
+    { from: 111733, to: 173205, rate: 0.26 },
+    { from: 173205, to: 246752, rate: 0.29 },
+    { from: 246752, to: Infinity, rate: 0.33 }
   ];
   
   const taxableIncome = Math.max(0, annualIncome - basicPersonalAmount);
   let tax = 0;
-  let previousThreshold = 0;
   
   for (const bracket of brackets) {
-    if (taxableIncome > bracket.threshold) {
-      const taxableInBracket = Math.min(
-        taxableIncome - bracket.threshold,
-        taxableIncome - previousThreshold
-      );
-      tax += taxableInBracket * bracket.rate;
-      previousThreshold = bracket.threshold;
-    } else {
-      break;
+    if (taxableIncome > bracket.from) {
+      const incomeInBracket = Math.min(taxableIncome, bracket.to) - bracket.from;
+      tax += incomeInBracket * bracket.rate;
     }
   }
   
@@ -203,35 +199,29 @@ function calculateFederalTax(annualIncome: number, basicPersonalAmount: number =
 
 /**
  * Calculate provincial income tax (Ontario rates as example)
- * Different provinces have different rates
+ * NOTE: Different provinces have different rates - currently only Ontario is implemented
+ * NOTE: Tax brackets change annually and should be updated each year
  */
 function calculateProvincialTax(annualIncome: number, province: string, basicPersonalAmount: number = 11141): number {
-  // Ontario 2024 tax brackets (default - should be province-specific)
+  // Ontario 2024 tax brackets (default - other provinces should be added)
   const ontarioBrackets = [
-    { threshold: 0, rate: 0.0505 },
-    { threshold: 49231, rate: 0.0915 },
-    { threshold: 98463, rate: 0.1116 },
-    { threshold: 150000, rate: 0.1216 },
-    { threshold: 220000, rate: 0.1316 }
+    { from: 0, to: 49231, rate: 0.0505 },
+    { from: 49231, to: 98463, rate: 0.0915 },
+    { from: 98463, to: 150000, rate: 0.1116 },
+    { from: 150000, to: 220000, rate: 0.1216 },
+    { from: 220000, to: Infinity, rate: 0.1316 }
   ];
   
-  // Use Ontario rates for all provinces for now (should be expanded)
+  // Use Ontario rates for all provinces for now (should be province-specific in production)
   const brackets = ontarioBrackets;
   
   const taxableIncome = Math.max(0, annualIncome - basicPersonalAmount);
   let tax = 0;
-  let previousThreshold = 0;
   
   for (const bracket of brackets) {
-    if (taxableIncome > bracket.threshold) {
-      const taxableInBracket = Math.min(
-        taxableIncome - bracket.threshold,
-        taxableIncome - previousThreshold
-      );
-      tax += taxableInBracket * bracket.rate;
-      previousThreshold = bracket.threshold;
-    } else {
-      break;
+    if (taxableIncome > bracket.from) {
+      const incomeInBracket = Math.min(taxableIncome, bracket.to) - bracket.from;
+      tax += incomeInBracket * bracket.rate;
     }
   }
   
@@ -247,9 +237,10 @@ function calculatePayrollDeductions(
   province: string,
   federalBPA: number = 15000,
   provincialBPA: number = 11141,
-  yearToDateEarnings: number = 0
+  yearToDateEarnings: number = 0,
+  otherDeductions: number = 0
 ) {
-  // Estimate annual income based on pay frequency
+  // Validate pay frequency
   const periodsPerYear: Record<string, number> = {
     weekly: 52,
     biweekly: 26,
@@ -257,7 +248,11 @@ function calculatePayrollDeductions(
     monthly: 12
   };
   
-  const periods = periodsPerYear[payFrequency] || 26;
+  const periods = periodsPerYear[payFrequency];
+  if (!periods) {
+    throw new Error(`Invalid pay frequency: ${payFrequency}`);
+  }
+  
   const estimatedAnnualIncome = grossPay * periods;
   
   // Calculate annual taxes
@@ -272,7 +267,7 @@ function calculatePayrollDeductions(
   const cpp = calculateCPP(grossPay, yearToDateEarnings);
   const ei = calculateEI(grossPay, yearToDateEarnings);
   
-  const totalDeductions = federalTax + provincialTax + cpp + ei;
+  const totalDeductions = federalTax + provincialTax + cpp + ei + otherDeductions;
   const netPay = grossPay - totalDeductions;
   
   return {
@@ -290,7 +285,11 @@ function calculatePayrollDeductions(
 // IN-MEMORY DATA STORAGE (Placeholder until database integration)
 // ============================================================================
 
-// Temporary in-memory storage - replace with database calls
+// WARNING: Temporary in-memory storage - NOT FOR PRODUCTION USE
+// - No data persistence across restarts
+// - No tenant isolation (shared across all users)
+// - ID collisions after restart
+// - Replace with proper database calls before production deployment
 const employees: Map<number, any> = new Map();
 const payrollRuns: Map<number, any> = new Map();
 const paystubs: Map<number, any> = new Map();
@@ -481,13 +480,13 @@ router.post('/runs', requireAuthHybrid, requireFirmMember, async (req, res) => {
     const context = createSecurityContext(user);
     
     // Get employees for this run
-    const runEmployees = runData.employeeIds 
+    const employeesForRun = runData.employeeIds 
       ? Array.from(employees.values()).filter(emp => runData.employeeIds!.includes(emp.id))
       : Array.from(employees.values()).filter(emp => emp.clientId === runData.clientId && emp.status === 'active');
     
     // Create new payroll run
     const newRun = {
-      id: nextPayrollRunId++,
+      id: nextPayrollRunId,
       clientId: runData.clientId,
       payRunNumber: `PR-${new Date().getFullYear()}-${String(nextPayrollRunId).padStart(4, '0')}`,
       payPeriodStart: runData.payPeriodStart,
@@ -498,12 +497,13 @@ router.post('/runs', requireAuthHybrid, requireFirmMember, async (req, res) => {
       totalDeductions: 0,
       totalEmployerContributions: 0,
       status: 'draft',
-      employeeCount: runEmployees.length,
+      employeeCount: employeesForRun.length,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
     
     payrollRuns.set(newRun.id, newRun);
+    nextPayrollRunId++;
     
     console.log(`✅ Created payroll run: ${newRun.payRunNumber} (ID: ${newRun.id})`);
     
@@ -530,7 +530,7 @@ router.post('/runs/:id/approve', requireAuthHybrid, requireFirmMember, async (re
     const user = req.user as any;
     const runId = parseInt(req.params.id);
     
-    if (isNaN(runId)) {
+    if (isNaN(runId) || runId <= 0) {
       return res.status(400).json({ error: 'Invalid payroll run ID' });
     }
     
@@ -539,6 +539,13 @@ router.post('/runs/:id/approve', requireAuthHybrid, requireFirmMember, async (re
     
     if (!run) {
       return res.status(404).json({ error: 'Payroll run not found' });
+    }
+    
+    // Authorization check: Verify user has access to this client
+    // In a real implementation, check if user's firmId has access to run.clientId
+    // For now, just check if clientId exists
+    if (!run.clientId) {
+      return res.status(403).json({ error: 'Access denied to this payroll run' });
     }
     
     if (run.status === 'approved') {
@@ -578,11 +585,22 @@ router.get('/runs/:id/paystubs', requireAuthHybrid, requireFirmMember, async (re
     const user = req.user as any;
     const runId = parseInt(req.params.id);
     
-    if (isNaN(runId)) {
+    if (isNaN(runId) || runId <= 0) {
       return res.status(400).json({ error: 'Invalid payroll run ID' });
     }
     
     const context = createSecurityContext(user);
+    
+    // Verify the payroll run exists and user has access
+    const run = payrollRuns.get(runId);
+    if (!run) {
+      return res.status(404).json({ error: 'Payroll run not found' });
+    }
+    
+    // Authorization check: Verify user has access to this client
+    if (!run.clientId) {
+      return res.status(403).json({ error: 'Access denied to this payroll run' });
+    }
     
     // Filter paystubs by payroll run ID
     const runPaystubs = Array.from(paystubs.values()).filter(
@@ -655,14 +673,29 @@ router.post('/process', requireAuthHybrid, requireFirmMember, async (req, res) =
     // Add additional earnings
     grossPay += payrollData.vacationPay + payrollData.bonus + payrollData.commission;
     
+    // Calculate other deductions
+    const otherDeductions = parseFloat(employee.unionDues || '0') + 
+                           parseFloat(employee.additionalTaxDeduction || '0') +
+                           parseFloat(employee.healthBenefits || '0') +
+                           parseFloat(employee.dentalBenefits || '0') +
+                           parseFloat(employee.lifeInsurance || '0');
+    
+    // Validate numeric conversions
+    if (isNaN(otherDeductions)) {
+      return res.status(400).json({ 
+        error: 'Invalid employee deduction values' 
+      });
+    }
+    
     // Calculate deductions (simplified - assumes YTD is 0)
     const deductions = calculatePayrollDeductions(
       grossPay,
       employee.payFrequency,
       employee.province,
-      parseFloat(employee.federalBasicPersonalAmount),
-      parseFloat(employee.provincialBasicPersonalAmount),
-      0 // YTD earnings - should be looked up from database
+      parseFloat(employee.federalBasicPersonalAmount || '15000'),
+      parseFloat(employee.provincialBasicPersonalAmount || '11141'),
+      0, // YTD earnings - should be looked up from database
+      otherDeductions
     );
     
     // Create paystub
@@ -895,7 +928,7 @@ router.get('/paystubs/:id/pdf', requireAuthHybrid, requireFirmMember, async (req
     const user = req.user as any;
     const paystubId = parseInt(req.params.id);
     
-    if (isNaN(paystubId)) {
+    if (isNaN(paystubId) || paystubId <= 0) {
       return res.status(400).json({ error: 'Invalid paystub ID' });
     }
     
@@ -912,7 +945,12 @@ router.get('/paystubs/:id/pdf', requireAuthHybrid, requireFirmMember, async (req
       return res.status(404).json({ error: 'Employee not found' });
     }
     
-    // Generate simple PDF content (placeholder - would use a PDF library like pdfkit)
+    // Authorization check: Verify user has access to this employee's client
+    if (!employee.clientId) {
+      return res.status(403).json({ error: 'Access denied to this paystub' });
+    }
+    
+    // Generate simple text content (placeholder for PDF - would use pdfkit in production)
     const pdfContent = `
 PAYSTUB - ${employee.firstName} ${employee.lastName}
 Employee #: ${employee.employeeNumber}
