@@ -61,7 +61,7 @@ jobs:
                   "type": "header",
                   "text": {
                     "type": "plain_text",
-                    "text": "CI Build ${{ success() && 'Passed ✅' || 'Failed ❌' }}"
+                    "text": "CI Build ${{ success() && 'Passed :white_check_mark:' || 'Failed :x:' }}"
                   }
                 },
                 {
@@ -81,15 +81,15 @@ jobs:
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Status:*\n${{ success() && 'Success' || 'Failed' }}"
+                      "text": "*Status:*\n${{ success() && 'Success :white_check_mark:' || 'Failed :x:' }}"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>"
+                      "text": "*Commit:*\n<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|`${{ substring(github.sha, 0, 7) }}`>"
                     },
                     {
                       "type": "mrkdwn",
-                      "text": "*Author:*\n${{ github.actor }}"
+                      "text": "*Author:*\n${{ toJSON(github.actor) }}"
                     }
                   ]
                 },
