@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  smoke:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -17,6 +17,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+
+      # ---- root ----
+      - name: Install (root)
+        run: npm install --no-audit --no-fund
+
+      - name: Test (root)
+        run: npm test
 
       # ---- accounting-app ----
       - name: Install (accounting-app)
