@@ -109,12 +109,12 @@ export function BooksModule({ clientId }: BooksModuleProps) {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6" role="main" aria-label="Books Module">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <BookOpen className="w-8 h-8 text-blue-600" />
+            <BookOpen className="w-8 h-8 text-blue-600" aria-hidden="true" />
             Books Module
           </h1>
           <p className="text-gray-600 mt-1">
@@ -122,33 +122,33 @@ export function BooksModule({ clientId }: BooksModuleProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Upload className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" aria-label="Import financial data">
+            <Upload className="w-4 h-4 mr-2" aria-hidden="true" />
             Import Data
           </Button>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
+          <Button variant="outline" size="sm" aria-label="Export financial reports">
+            <Download className="w-4 h-4 mr-2" aria-hidden="true" />
             Export Reports
           </Button>
-          <Button size="sm">
-            <Plus className="w-4 h-4 mr-2" />
+          <Button size="sm" aria-label="Create quick journal entry">
+            <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
             Quick Entry
           </Button>
         </div>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" role="region" aria-label="Financial overview metrics">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Assets</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-blue-600" aria-label={`Total assets: ${formatCurrency(metrics?.assets)}`}>
                   {formatCurrency(metrics?.assets)}
                 </p>
               </div>
-              <Building2 className="w-8 h-8 text-blue-500" />
+              <Building2 className="w-8 h-8 text-blue-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
@@ -158,11 +158,11 @@ export function BooksModule({ clientId }: BooksModuleProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-2xl font-bold text-green-600" aria-label={`Total revenue: ${formatCurrency(metrics?.income)}`}>
                   {formatCurrency(metrics?.income)}
                 </p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-500" />
+              <TrendingUp className="w-8 h-8 text-green-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
@@ -172,11 +172,11 @@ export function BooksModule({ clientId }: BooksModuleProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Expenses</p>
-                <p className="text-2xl font-bold text-orange-600">
+                <p className="text-2xl font-bold text-orange-600" aria-label={`Total expenses: ${formatCurrency(metrics?.expenses)}`}>
                   {formatCurrency(metrics?.expenses)}
                 </p>
               </div>
-              <Receipt className="w-8 h-8 text-orange-500" />
+              <Receipt className="w-8 h-8 text-orange-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
@@ -186,11 +186,11 @@ export function BooksModule({ clientId }: BooksModuleProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Transactions</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-2xl font-bold text-purple-600" aria-label={`Total transactions: ${transactionCount || 0}`}>
                   {transactionCount || 0}
                 </p>
               </div>
-              <FileText className="w-8 h-8 text-purple-500" />
+              <FileText className="w-8 h-8 text-purple-500" aria-hidden="true" />
             </div>
           </CardContent>
         </Card>
@@ -205,37 +205,41 @@ export function BooksModule({ clientId }: BooksModuleProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4" role="group" aria-label="Quick action buttons">
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
               onClick={() => setActiveTab("transactions")}
+              aria-label="Add new transaction"
             >
-              <Receipt className="w-6 h-6" />
+              <Receipt className="w-6 h-6" aria-hidden="true" />
               <span>Add Transaction</span>
             </Button>
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
               onClick={() => setActiveTab("journal")}
+              aria-label="Create journal entry"
             >
-              <FileText className="w-6 h-6" />
+              <FileText className="w-6 h-6" aria-hidden="true" />
               <span>Journal Entry</span>
             </Button>
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
               onClick={() => setActiveTab("chart-of-accounts")}
+              aria-label="Manage chart of accounts"
             >
-              <Building2 className="w-6 h-6" />
+              <Building2 className="w-6 h-6" aria-hidden="true" />
               <span>Chart of Accounts</span>
             </Button>
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
               onClick={() => setActiveTab("trial-balance")}
+              aria-label="View trial balance"
             >
-              <Calculator className="w-6 h-6" />
+              <Calculator className="w-6 h-6" aria-hidden="true" />
               <span>Trial Balance</span>
             </Button>
           </div>
