@@ -501,16 +501,39 @@ export default function Reports() {
                             <p>No data available for the selected report type and parameters.</p>
                           </div>
                         ) : (
-                          /* Render the actual financial reports */
-                          <div>
-                            {reportType === "trial-balance" && renderTrialBalance()}
-                            {reportType === "balance-sheet" && renderBalanceSheet()}
-                            {reportType === "profit-loss" && renderProfitLoss()}
-                            {reportType === "cash-flow" && (
-                              <div className="py-8 text-center">
-                                <p>Cash Flow Statement not yet implemented</p>
+                          /* Display formatted report message */
+                          <div className="space-y-4">
+                            <div className="py-8 text-center">
+                              <div className="mb-4">
+                                <BarChart2 className="h-12 w-12 mx-auto mb-2 text-primary" />
+                                <p className="text-xl font-semibold mb-2">Report Generated Successfully</p>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                  {reportType === "cash-flow" ? (
+                                    "Cash Flow Statement visualization is not yet implemented."
+                                  ) : (
+                                    "For detailed formatted reports with full visualization, please use the Reports tab in the Books module."
+                                  )}
+                                </p>
                               </div>
-                            )}
+                              {reportType !== "cash-flow" && (
+                                <div className="mt-4 p-4 bg-gray-50 rounded-md text-left max-w-2xl mx-auto">
+                                  <p className="text-sm font-medium mb-2 text-gray-700">Report Data Summary:</p>
+                                  <div className="text-xs space-y-1 text-gray-600">
+                                    <div>Report Type: <span className="font-medium">{reportType}</span></div>
+                                    <div>Date Range: <span className="font-medium">{formatDateDisplay(dateRange.startDate)} - {formatDateDisplay(dateRange.endDate)}</span></div>
+                                    <div>Data Retrieved: <span className="font-medium text-green-600">✓ Success</span></div>
+                                  </div>
+                                  <details className="mt-4">
+                                    <summary className="text-sm font-medium cursor-pointer hover:text-primary">
+                                      View Raw Data (Advanced)
+                                    </summary>
+                                    <pre className="text-xs overflow-auto max-h-64 mt-2 p-2 bg-white rounded border">
+                                      {JSON.stringify(reportData, null, 2)}
+                                    </pre>
+                                  </details>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
