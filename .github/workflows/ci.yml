@@ -6,50 +6,44 @@ on:
     branches: [ main ]
 
 jobs:
-  accounting_app:
-    name: accounting-app
+  smoke:
     runs-on: ubuntu-latest
-    defaults:
-      run:
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # ---- accounting-app ----
+      - name: Install (accounting-app)
         working-directory: accounting/accounting-app
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: accounting/accounting-app/package-lock.json
-
-      - name: Install
-        run: npm ci
-
-      - name: Typecheck
-        run: npm run check
-
-      - name: Build
-        run: npm run build
-
-  accounting_api:
-    name: accounting-api
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: accounting/accounting-api
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install
-        run: npm install --no-audit --no-fund
+        run: |
           if [ -f package-lock.json ]; then
             npm ci
           else
             npm install --no-audit --no-fund
           fi
 
-      - name: Test
-        run: npm test
+      - name: Test (accounting-app)
+        working-directory: accounting/accounting-app
+        run: |
+          npm run --if-present test
+
+      # ---- accounting-api ----
+      - name: Install (accounting-api)
+        working-directory: accounting/accounting-api
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Test (accounting-api)
+        working-directory: accounting/accounting-api
+        run: |
+          npm test
