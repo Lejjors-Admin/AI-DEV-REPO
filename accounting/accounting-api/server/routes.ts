@@ -3481,8 +3481,10 @@ ${firmName}
             }
           }
 
-          // Check if debits equal credits (within a small rounding tolerance)
-          if (Math.abs(totalDebits - totalCredits) > 0.01) {
+          // Check if debits equal credits (strict accounting tolerance)
+          // Tolerance of 0.001 (one-tenth of a penny) ensures penny-perfect balance
+          // while accommodating only sub-penny floating-point precision errors
+          if (Math.abs(totalDebits - totalCredits) > 0.001) {
             console.log(
               `Journal entry unbalanced: Debits $${totalDebits}, Credits $${totalCredits}`
             );
@@ -5389,7 +5391,7 @@ ${firmName}
               )}, Credits: $${totalCredits.toFixed(2)}`
             );
             console.log(
-              `⚖️ Balanced: ${Math.abs(totalDebits - totalCredits) < 0.01
+              `⚖️ Balanced: ${Math.abs(totalDebits - totalCredits) < 0.001
                 ? "YES"
                 : "NO (Diff: $" +
                 (totalDebits - totalCredits).toFixed(2) +
@@ -6120,7 +6122,10 @@ ${firmName}
           totalCredits += credit;
         });
 
-        if (Math.abs(totalDebits - totalCredits) > 0.01) {
+        // Use strict tolerance for accounting: penny-perfect balance required
+        // Tolerance of 0.001 (one-tenth of a penny) ensures proper balance
+        // while accommodating only sub-penny floating-point precision errors
+        if (Math.abs(totalDebits - totalCredits) > 0.001) {
           return res.status(400).json({
             error: `Journal entry is not balanced. Debits: $${totalDebits.toFixed(
               2
@@ -6262,7 +6267,10 @@ ${firmName}
           totalCredits += credit;
         });
 
-        if (Math.abs(totalDebits - totalCredits) > 0.01) {
+        // Use strict tolerance for accounting: penny-perfect balance required
+        // Tolerance of 0.001 (one-tenth of a penny) ensures proper balance
+        // while accommodating only sub-penny floating-point precision errors
+        if (Math.abs(totalDebits - totalCredits) > 0.001) {
           return res.status(400).json({
             error: `Journal entry is not balanced. Debits: $${totalDebits.toFixed(
               2
@@ -6623,7 +6631,7 @@ ${firmName}
               totalDebit: totalDebits,
               totalCredit: totalCredits,
               status: "posted",
-              isBalanced: Math.abs(totalDebits - totalCredits) < 0.01,
+              isBalanced: Math.abs(totalDebits - totalCredits) < 0.001,
             });
 
             // Create journal entry lines
@@ -6680,7 +6688,7 @@ ${firmName}
         totalCredits += entry.creditBalance;
       });
 
-      const isBalanced = Math.abs(totalDebits - totalCredits) < 0.01;
+      const isBalanced = Math.abs(totalDebits - totalCredits) < 0.001;
 
       // Calculate summary by account type
       const totalAssets = trialBalanceEntries.filter(e => e.accountType === 'asset').reduce((sum, e) => sum + e.netBalance, 0);
@@ -11535,7 +11543,7 @@ ${firmName}
           entries: trialBalanceEntries,
           totalDebits,
           totalCredits,
-          isBalanced: Math.abs(totalDebits - totalCredits) < 0.01,
+          isBalanced: Math.abs(totalDebits - totalCredits) < 0.001,
           asOfDate: endDateStr,
           fiscalStartDate: fiscalStartStr
         },
