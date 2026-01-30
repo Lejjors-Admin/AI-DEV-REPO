@@ -1,8 +1,31 @@
 /**
  * Books Module - Core Accounting Foundation
  * 
- * Comprehensive accounting functionality that will provide real data for TARS
- * Includes: Chart of Accounts, Transactions, Trial Balance, Journal Entries
+ * This module serves as the central hub for all accounting operations within AccountSync.
+ * It provides comprehensive financial management capabilities and serves as the primary
+ * data source for the TARS AI audit system.
+ * 
+ * Key Components:
+ * - Trial Balance: Real-time view of account balances with debit/credit verification
+ * - Chart of Accounts: Hierarchical account structure management
+ * - Transaction Ledger: Complete transaction history with categorization
+ * - Financial Reports: Standard and custom financial statement generation
+ * 
+ * Integration:
+ * - Milton AI: Provides intelligent assistance for transaction categorization,
+ *   account setup, and data processing
+ * - TARS AI: Supplies real financial data for automated audit procedures
+ * 
+ * Features:
+ * - Real-time financial metrics (Assets, Revenue, Expenses)
+ * - Quick action buttons for common accounting tasks
+ * - Data import/export capabilities
+ * - Multi-client support with client-specific data isolation
+ * 
+ * @module BooksModule
+ * @requires react
+ * @requires @tanstack/react-query
+ * @requires wouter
  */
 
 import { useState } from "react";
