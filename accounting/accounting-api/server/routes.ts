@@ -3482,7 +3482,8 @@ ${firmName}
           }
 
           // Check if debits equal credits (strict accounting tolerance)
-          // Only allow tiny floating-point precision errors (0.001 = 1/10 of a cent)
+          // Tolerance of 0.001 (one-tenth of a penny) ensures penny-perfect balance
+          // while accommodating only sub-penny floating-point precision errors
           if (Math.abs(totalDebits - totalCredits) > 0.001) {
             console.log(
               `Journal entry unbalanced: Debits $${totalDebits}, Credits $${totalCredits}`
@@ -6121,8 +6122,9 @@ ${firmName}
           totalCredits += credit;
         });
 
-        // Use strict tolerance for accounting: entries must balance to the penny
-        // Only allow tiny floating-point precision errors (0.001 = 1/10 of a cent)
+        // Use strict tolerance for accounting: penny-perfect balance required
+        // Tolerance of 0.001 (one-tenth of a penny) ensures proper balance
+        // while accommodating only sub-penny floating-point precision errors
         if (Math.abs(totalDebits - totalCredits) > 0.001) {
           return res.status(400).json({
             error: `Journal entry is not balanced. Debits: $${totalDebits.toFixed(
@@ -6265,8 +6267,9 @@ ${firmName}
           totalCredits += credit;
         });
 
-        // Use strict tolerance for accounting: entries must balance to the penny
-        // Only allow tiny floating-point precision errors (0.001 = 1/10 of a cent)
+        // Use strict tolerance for accounting: penny-perfect balance required
+        // Tolerance of 0.001 (one-tenth of a penny) ensures proper balance
+        // while accommodating only sub-penny floating-point precision errors
         if (Math.abs(totalDebits - totalCredits) > 0.001) {
           return res.status(400).json({
             error: `Journal entry is not balanced. Debits: $${totalDebits.toFixed(

@@ -194,8 +194,9 @@ export function JournalEntryEditor({
     const totalDebits = entry.lines.reduce((sum, line) => sum + parseFloat(line.debitAmount || '0'), 0);
     const totalCredits = entry.lines.reduce((sum, line) => sum + parseFloat(line.creditAmount || '0'), 0);
     const difference = Math.abs(totalDebits - totalCredits);
-    // Use strict tolerance for accounting: entries must balance to the penny
-    // Only allow tiny floating-point precision errors (0.001 = 1/10 of a cent)
+    // Use strict tolerance for accounting: penny-perfect balance required
+    // Tolerance of 0.001 (one-tenth of a penny) ensures proper balance
+    // while accommodating only sub-penny floating-point precision errors
     const isBalanced = difference < 0.001;
 
     return {
