@@ -7,8 +7,8 @@ on:
 
 jobs:
   smoke:
-    name: smoke
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,8 +18,32 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install
-        run: npm install
+      # ---- accounting-app ----
+      - name: Install (accounting-app)
+        working-directory: accounting/accounting-app
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
 
-      - name: Test
-        run: npm test
+      - name: Test (accounting-app)
+        working-directory: accounting/accounting-app
+        run: |
+          npm run --if-present test
+
+      # ---- accounting-api ----
+      - name: Install (accounting-api)
+        working-directory: accounting/accounting-api
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Test (accounting-api)
+        working-directory: accounting/accounting-api
+        run: |
+          npm test
