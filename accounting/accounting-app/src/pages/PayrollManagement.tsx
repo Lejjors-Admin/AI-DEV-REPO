@@ -44,6 +44,7 @@ import { insertEmployeeSchema } from "@/lib/types";
 import TaxSettings from "./TaxSettings";
 import PayrollProcessor from "@/components/payroll/PayrollProcessor";
 import { apiConfig } from "@/lib/api-config";
+import { PaystubPDFGenerator, type PaystubData } from "@/lib/paystub-pdf-generator";
 
 // Canadian provinces and territories
 const CANADIAN_PROVINCES = [
@@ -472,50 +473,27 @@ export default function PayrollManagement({ clientId }: PayrollProps) {
                             variant="outline"
                             onClick={async () => {
                               try {
-                                // First get paystubs for this pay run
-                                const response = await fetch(apiConfig.buildUrl(`/api/payroll/runs/${run.id}/paystubs`), {
-                                  headers: {
-                                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                                  }
-                                });
+                                // Fetch paystub data for bulk PDF generation
+                                const response = await apiRequest('GET', `/api/payroll/runs/${run.id}/paystubs/bulk-pdf`);
+                                const data = await response.json();
                                 
-                                if (response.ok) {
-                                  const data = await response.json();
+                                if (data.success && data.data && data.data.length > 0) {
+                                  // Generate and download PDFs
+                                  PaystubPDFGenerator.downloadBulkPaystubPDFs(data.data as PaystubData[]);
                                   
-                                  if (data.success && data.data.length > 0) {
-                                    // Download each paystub PDF
-                                    for (const paystub of data.data) {
-                                      const pdfResponse = await fetch(`/api/payroll/paystubs/${paystub.id}/pdf`);
-                                      
-                                      if (pdfResponse.ok) {
-                                        const blob = await pdfResponse.blob();
-                                        const url = window.URL.createObjectURL(blob);
-                                        const a = document.createElement('a');
-                                        a.style.display = 'none';
-                                        a.href = url;
-                                        a.download = `Paystub-${paystub.employeeId}-${run.payRunNumber}.pdf`;
-                                        document.body.appendChild(a);
-                                        a.click();
-                                        window.URL.revokeObjectURL(url);
-                                        document.body.removeChild(a);
-                                      }
-                                    }
-                                    
-                                    toast({
-                                      title: "PDFs Downloaded",
-                                      description: `Downloaded ${data.data.length} paystub PDFs`,
-                                    });
-                                  } else {
-                                    toast({
-                                      title: "No Paystubs Found",
-                                      description: "No paystubs available for this pay run",
-                                      variant: "destructive",
-                                    });
-                                  }
+                                  toast({
+                                    title: "PDFs Downloaded",
+                                    description: `Downloading ${data.data.length} paystub PDFs`,
+                                  });
                                 } else {
-                                  throw new Error('Failed to fetch paystubs');
+                                  toast({
+                                    title: "No Paystubs Found",
+                                    description: "No paystubs available for this pay run",
+                                    variant: "destructive",
+                                  });
                                 }
                               } catch (error) {
+                                console.error('Error downloading paystubs:', error);
                                 toast({
                                   title: "Download Error",
                                   description: "Failed to download paystubs",

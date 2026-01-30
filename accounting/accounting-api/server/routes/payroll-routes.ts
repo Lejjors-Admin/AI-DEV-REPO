@@ -798,16 +798,86 @@ router.get('/paystubs/:id/pdf', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Paystub not found' });
     }
     
-    // TODO: Implement actual PDF generation
-    // For now, return a placeholder response
-    res.status(501).json({ 
-      success: false, 
-      error: 'PDF generation not yet implemented',
-      message: 'This feature will be implemented with issue #15'
+    const employee = employees.find(e => e.id === paystub.employeeId);
+    const payrollRun = payrollRuns.find(r => r.id === paystub.payrollRunId);
+    
+    if (!employee || !payrollRun) {
+      return res.status(404).json({ success: false, error: 'Associated data not found' });
+    }
+    
+    // Return paystub data that will be used by frontend to generate PDF
+    // Frontend has jsPDF library already configured
+    res.json({
+      success: true,
+      data: {
+        paystub,
+        employee: {
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          employeeNumber: employee.employeeNumber,
+          address: employee.address,
+          city: employee.city,
+          province: employee.province,
+          postalCode: employee.postalCode,
+        },
+        payrollRun: {
+          payRunNumber: payrollRun.payRunNumber,
+          payPeriodStart: payrollRun.payPeriodStart,
+          payPeriodEnd: payrollRun.payPeriodEnd,
+          payDate: payrollRun.payDate,
+        }
+      }
     });
   } catch (error) {
-    console.error('Error generating paystub PDF:', error);
-    res.status(500).json({ success: false, error: 'Failed to generate paystub PDF' });
+    console.error('Error fetching paystub data:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch paystub data' });
+  }
+});
+
+/**
+ * GET /api/payroll/runs/:id/paystubs/bulk-pdf
+ * Get data for bulk PDF generation of all paystubs in a pay run
+ */
+router.get('/runs/:id/paystubs/bulk-pdf', async (req, res) => {
+  try {
+    const runId = parseInt(req.params.id);
+    const payrollRun = payrollRuns.find(r => r.id === runId);
+    
+    if (!payrollRun) {
+      return res.status(404).json({ success: false, error: 'Payroll run not found' });
+    }
+    
+    const runPaystubs = paystubs.filter(p => p.payrollRunId === runId);
+    
+    const paystubsWithDetails = runPaystubs.map(paystub => {
+      const employee = employees.find(e => e.id === paystub.employeeId);
+      return {
+        paystub,
+        employee: employee ? {
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          employeeNumber: employee.employeeNumber,
+          address: employee.address,
+          city: employee.city,
+          province: employee.province,
+          postalCode: employee.postalCode,
+        } : null,
+        payrollRun: {
+          payRunNumber: payrollRun.payRunNumber,
+          payPeriodStart: payrollRun.payPeriodStart,
+          payPeriodEnd: payrollRun.payPeriodEnd,
+          payDate: payrollRun.payDate,
+        }
+      };
+    });
+    
+    res.json({
+      success: true,
+      data: paystubsWithDetails
+    });
+  } catch (error) {
+    console.error('Error fetching bulk paystub data:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch bulk paystub data' });
   }
 });
 

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { PaystubPDFGenerator, type PaystubData } from "@/lib/paystub-pdf-generator";
 
 interface Employee {
   id: number;
@@ -623,12 +624,31 @@ export default function PayrollProcessor({ clientId, onComplete }: PayrollProces
                     variant="outline" 
                     size="sm"
                     className="w-full"
-                    onClick={() => {
-                      // TODO: Implement bulk PDF generation
-                      toast({
-                        title: "PDF Generation",
-                        description: "Bulk PDF generation will be implemented shortly",
-                      });
+                    onClick={async () => {
+                      try {
+                        // Fetch paystub data for bulk PDF generation
+                        const response = await apiRequest('GET', `/api/payroll/runs/${payrollSummary.payRun.id}/paystubs/bulk-pdf`);
+                        const result = await response.json();
+                        
+                        if (result.success && result.data) {
+                          // Generate and download PDFs
+                          PaystubPDFGenerator.downloadBulkPaystubPDFs(result.data as PaystubData[]);
+                          
+                          toast({
+                            title: "PDFs Generated",
+                            description: `Downloading ${result.data.length} paystub PDFs`,
+                          });
+                        } else {
+                          throw new Error('Failed to fetch paystub data');
+                        }
+                      } catch (error) {
+                        console.error('Error generating PDFs:', error);
+                        toast({
+                          title: "Error",
+                          description: "Failed to generate paystub PDFs",
+                          variant: "destructive",
+                        });
+                      }
                     }}
                   >
                     <Download className="h-4 w-4 mr-2" />
