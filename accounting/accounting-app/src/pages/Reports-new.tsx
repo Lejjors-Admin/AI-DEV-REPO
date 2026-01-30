@@ -224,6 +224,337 @@ export default function Reports() {
       description: "Your report download should begin shortly.",
     });
   };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency: 'CAD'
+    }).format(amount || 0);
+  };
+
+  const renderBalanceSheet = () => {
+    if (!reportData || !reportData.assets) return null;
+    
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Assets */}
+          <div>
+            <h3 className="text-xl font-bold mb-4 border-b-2 pb-2">ASSETS</h3>
+            
+            {/* Current Assets */}
+            <div className="mb-6">
+              <h4 className="font-semibold text-lg mb-3">Current Assets</h4>
+              {reportData.assets.currentAssets?.accounts?.map((account: any) => (
+                <div key={account.id} className="flex justify-between py-2 pl-4">
+                  <div>
+                    <div className="font-medium">{account.name}</div>
+                    <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                  </div>
+                  <div className="font-medium">{formatCurrency(account.balance)}</div>
+                </div>
+              ))}
+              <div className="flex justify-between py-2 border-t font-bold">
+                <span>Total Current Assets</span>
+                <span>{formatCurrency(reportData.assets.currentAssets?.total || 0)}</span>
+              </div>
+            </div>
+
+            {/* Fixed Assets */}
+            <div className="mb-6">
+              <h4 className="font-semibold text-lg mb-3">Fixed Assets</h4>
+              {reportData.assets.fixedAssets?.accounts?.length > 0 ? (
+                reportData.assets.fixedAssets.accounts.map((account: any) => (
+                  <div key={account.id} className="flex justify-between py-2 pl-4">
+                    <div>
+                      <div className="font-medium">{account.name}</div>
+                      <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                    </div>
+                    <div className="font-medium">{formatCurrency(account.balance)}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-500 pl-4">No fixed assets</div>
+              )}
+              <div className="flex justify-between py-2 border-t font-bold">
+                <span>Total Fixed Assets</span>
+                <span>{formatCurrency(reportData.assets.fixedAssets?.total || 0)}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-between py-3 border-t-2 border-black font-bold text-xl">
+              <span>TOTAL ASSETS</span>
+              <span>{formatCurrency(reportData.totals?.totalAssets || 0)}</span>
+            </div>
+          </div>
+
+          {/* Liabilities & Equity */}
+          <div>
+            <h3 className="text-xl font-bold mb-4 border-b-2 pb-2">LIABILITIES & EQUITY</h3>
+            
+            {/* Current Liabilities */}
+            <div className="mb-6">
+              <h4 className="font-semibold text-lg mb-3">Current Liabilities</h4>
+              {reportData.liabilities.currentLiabilities?.accounts?.length > 0 ? (
+                reportData.liabilities.currentLiabilities.accounts.map((account: any) => (
+                  <div key={account.id} className="flex justify-between py-2 pl-4">
+                    <div>
+                      <div className="font-medium">{account.name}</div>
+                      <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                    </div>
+                    <div className="font-medium">{formatCurrency(account.balance)}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-500 pl-4">No current liabilities</div>
+              )}
+              <div className="flex justify-between py-2 border-t font-bold">
+                <span>Total Current Liabilities</span>
+                <span>{formatCurrency(reportData.liabilities.currentLiabilities?.total || 0)}</span>
+              </div>
+            </div>
+
+            {/* Long-term Liabilities */}
+            <div className="mb-6">
+              <h4 className="font-semibold text-lg mb-3">Long-term Liabilities</h4>
+              {reportData.liabilities.longTermLiabilities?.accounts?.length > 0 ? (
+                reportData.liabilities.longTermLiabilities.accounts.map((account: any) => (
+                  <div key={account.id} className="flex justify-between py-2 pl-4">
+                    <div>
+                      <div className="font-medium">{account.name}</div>
+                      <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                    </div>
+                    <div className="font-medium">{formatCurrency(account.balance)}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-500 pl-4">No long-term liabilities</div>
+              )}
+              <div className="flex justify-between py-2 border-t font-bold">
+                <span>Total Long-term Liabilities</span>
+                <span>{formatCurrency(reportData.liabilities.longTermLiabilities?.total || 0)}</span>
+              </div>
+            </div>
+
+            {/* Total Liabilities */}
+            <div className="flex justify-between py-2 border-t font-bold mb-6">
+              <span>Total Liabilities</span>
+              <span>{formatCurrency(reportData.liabilities?.total || 0)}</span>
+            </div>
+
+            {/* Equity */}
+            <div className="mb-6">
+              <h4 className="font-semibold text-lg mb-3">Equity</h4>
+              {reportData.equity.accounts?.map((account: any) => (
+                <div key={account.id} className="flex justify-between py-2 pl-4">
+                  <div>
+                    <div className="font-medium">{account.name}</div>
+                    <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                  </div>
+                  <div className="font-medium">{formatCurrency(account.balance)}</div>
+                </div>
+              ))}
+              <div className="flex justify-between py-2 border-t font-bold">
+                <span>Total Equity</span>
+                <span>{formatCurrency(reportData.equity?.total || 0)}</span>
+              </div>
+            </div>
+
+            <div className="flex justify-between py-3 border-t-2 border-black font-bold text-xl">
+              <span>TOTAL LIABILITIES & EQUITY</span>
+              <span>{formatCurrency(reportData.totals?.totalLiabilitiesAndEquity || 0)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Balance Status */}
+        <div className={`text-center p-4 rounded-lg ${reportData.isBalanced ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          <h3 className="font-bold text-lg">
+            {reportData.isBalanced ? '✓ Balance Sheet is BALANCED' : '✗ Balance Sheet is NOT BALANCED'}
+          </h3>
+          <p>Assets = Liabilities + Equity</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTrialBalance = () => {
+    if (!reportData || !reportData.accounts) return null;
+
+    return (
+      <div className="space-y-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <h3 className="font-semibold">Total Debits</h3>
+              <p className="text-2xl font-bold text-blue-600">{formatCurrency(reportData.summary?.totalDebits || 0)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <h3 className="font-semibold">Total Credits</h3>
+              <p className="text-2xl font-bold text-green-600">{formatCurrency(reportData.summary?.totalCredits || 0)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <h3 className="font-semibold">Status</h3>
+              <p className={`text-2xl font-bold ${reportData.summary?.isBalanced ? 'text-green-600' : 'text-red-600'}`}>
+                {reportData.summary?.isBalanced ? 'BALANCED' : 'UNBALANCED'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Accounts Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="border border-gray-300 px-4 py-2 text-left">Account</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Account Number</th>
+                <th className="border border-gray-300 px-4 py-2 text-right">Debit</th>
+                <th className="border border-gray-300 px-4 py-2 text-right">Credit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(reportData.accounts).map(([type, accounts]: [string, any]) => {
+                if (!accounts || accounts.length === 0) return null;
+                
+                const typeName = type === 'costOfSales' ? 'Cost of Sales' : 
+                                type.charAt(0).toUpperCase() + type.slice(1);
+                
+                return [
+                  <tr key={`${type}-header`} className="bg-gray-100">
+                    <td colSpan={4} className="border border-gray-300 px-4 py-2 font-bold">{typeName}</td>
+                  </tr>,
+                  ...accounts.map((account: any) => (
+                    <tr key={account.id}>
+                      <td className="border border-gray-300 px-4 py-2">{account.name}</td>
+                      <td className="border border-gray-300 px-4 py-2">{account.accountNumber}</td>
+                      <td className="border border-gray-300 px-4 py-2 text-right">
+                        {account.debitBalance > 0 ? formatCurrency(account.debitBalance) : '-'}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2 text-right">
+                        {account.creditBalance > 0 ? formatCurrency(account.creditBalance) : '-'}
+                      </td>
+                    </tr>
+                  ))
+                ];
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const renderProfitLoss = () => {
+    if (!reportData) return null;
+
+    return (
+      <div className="space-y-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <h3 className="font-semibold">Total Revenue</h3>
+              <p className="text-2xl font-bold text-green-600">{formatCurrency(reportData.income?.total || 0)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <h3 className="font-semibold">Total Expenses</h3>
+              <p className="text-2xl font-bold text-red-600">{formatCurrency(reportData.expenses?.total || 0)}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 text-center">
+              <h3 className="font-semibold">Net Income</h3>
+              <p className={`text-2xl font-bold ${reportData.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {formatCurrency(reportData.netIncome || 0)}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Income */}
+        <div>
+          <h3 className="text-xl font-bold mb-4 border-b-2 pb-2">REVENUE</h3>
+          {reportData.income?.accounts?.map((account: any) => (
+            account.balance > 0 && (
+              <div key={account.id} className="flex justify-between py-2 pl-4">
+                <div>
+                  <div className="font-medium">{account.name}</div>
+                  <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                </div>
+                <div className="font-medium">{formatCurrency(account.balance)}</div>
+              </div>
+            )
+          ))}
+          <div className="flex justify-between py-3 border-t-2 font-bold text-lg">
+            <span>Total Revenue</span>
+            <span>{formatCurrency(reportData.income?.total || 0)}</span>
+          </div>
+        </div>
+
+        {/* Cost of Sales */}
+        {reportData.costOfSales?.total > 0 && (
+          <div>
+            <h3 className="text-xl font-bold mb-4 border-b-2 pb-2">COST OF SALES</h3>
+            {reportData.costOfSales.accounts?.map((account: any) => (
+              account.balance > 0 && (
+                <div key={account.id} className="flex justify-between py-2 pl-4">
+                  <div>
+                    <div className="font-medium">{account.name}</div>
+                    <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                  </div>
+                  <div className="font-medium">{formatCurrency(account.balance)}</div>
+                </div>
+              )
+            ))}
+            <div className="flex justify-between py-3 border-t-2 font-bold text-lg">
+              <span>Total Cost of Sales</span>
+              <span>{formatCurrency(reportData.costOfSales.total)}</span>
+            </div>
+            <div className="flex justify-between py-3 border-t-2 border-black font-bold text-xl">
+              <span>GROSS PROFIT</span>
+              <span>{formatCurrency(reportData.grossProfit || 0)}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Expenses */}
+        <div>
+          <h3 className="text-xl font-bold mb-4 border-b-2 pb-2">EXPENSES</h3>
+          {reportData.expenses?.accounts?.map((account: any) => (
+            account.balance > 0 && (
+              <div key={account.id} className="flex justify-between py-2 pl-4">
+                <div>
+                  <div className="font-medium">{account.name}</div>
+                  <div className="text-sm text-gray-500">{account.accountNumber}</div>
+                </div>
+                <div className="font-medium">{formatCurrency(account.balance)}</div>
+              </div>
+            )
+          ))}
+          <div className="flex justify-between py-3 border-t-2 font-bold text-lg">
+            <span>Total Expenses</span>
+            <span>{formatCurrency(reportData.expenses?.total || 0)}</span>
+          </div>
+        </div>
+
+        {/* Net Income */}
+        <div className="flex justify-between py-4 border-t-4 border-black font-bold text-2xl">
+          <span>NET INCOME</span>
+          <span className={reportData.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}>
+            {formatCurrency(reportData.netIncome || 0)}
+          </span>
+        </div>
+      </div>
+    );
+  };
   
   return (
     <div className="container mx-auto py-6 max-w-7xl">
