@@ -369,6 +369,31 @@ export function BooksModule({ clientId }: BooksModuleProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Help & Getting Started */}
+      <Card className="border-green-200 bg-green-50">
+        <CardContent className="p-4">
+          <h4 className="font-medium text-green-900 mb-3">Getting Started with Books</h4>
+          <div className="space-y-2 text-sm text-green-800">
+            <div className="flex items-start gap-2">
+              <span className="font-semibold min-w-[20px]">1.</span>
+              <p>Set up your Chart of Accounts with all necessary account types (Assets, Liabilities, Equity, Income, Expenses)</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-semibold min-w-[20px]">2.</span>
+              <p>Import or manually enter your transactions - use Milton AI for automatic categorization</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-semibold min-w-[20px]">3.</span>
+              <p>Review your Trial Balance to ensure debits equal credits and all accounts are properly classified</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="font-semibold min-w-[20px]">4.</span>
+              <p>Generate financial reports for analysis, compliance, and decision-making</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

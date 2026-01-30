@@ -54,7 +54,7 @@ export default function MiltonBooksChat({ clientId }: MiltonBooksChat) {
     {
       id: '1',
       type: 'milton',
-      content: "Hello! I'm Milton, your AI Books assistant. I can help you with:\n\n• Setting up your Chart of Accounts\n• Classifying transactions automatically\n• Uploading and processing financial data\n• Generating financial reports\n\nWhat would you like to work on today?",
+      content: "Hello! I'm Milton, your AI Books assistant. I'm here to make your accounting easier and more accurate.\n\n**I can help you with:**\n\n• **Chart of Accounts Setup** - Create a comprehensive account structure tailored to your business\n• **Transaction Classification** - Automatically categorize transactions using AI\n• **Data Import** - Upload Excel or CSV files with your financial data\n• **Financial Reporting** - Generate balance sheets, P&L statements, and custom reports\n• **Reconciliation** - Help match and reconcile bank transactions\n• **Compliance** - Ensure your books meet accounting standards\n\n**Pro Tips:**\n- Upload your bank statements or general ledger files for quick setup\n- Ask me specific questions about your accounts or transactions\n- Request reports for any time period\n\nWhat would you like to work on today?",
       timestamp: new Date(),
     }
   ]);
